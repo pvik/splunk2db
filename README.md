@@ -8,7 +8,7 @@ An alternative to using the Splunk DB Connect App to extract data from Splunk an
 
 A valid `config.toml` needs to be provided to the `splunk2db` service.
 
-A sample configuration file (with comments) is provided in the `configs` folder.
+A sample configuration file (with comments) is provided in the `configs` folder [here](https://github.com/pvik/splunk2db/blob/main/configs/config.toml).
 
 The config file is split into three main sections (logging is a fourth section, which will assume sane defaults if not defined in the configuration file)
 
@@ -31,9 +31,9 @@ $ ./splunk2db -conf ./config.toml
 {"time":"2023-08-22T15:55:59.84605865-04:00","level":"INFO","msg":"done processing query","query-name":"test-query","processed-records":15}
 ```
 
-# Thanks
+## Thanks
 
 This application uses:
 
 * [go-splunk-rest](https://github.com/pvik/go-splunk-rest) library to handle interaction with Splunk API
-* [gorm](gorm.io) library to handle DB interactions
+* [gorm](https://gorm.io/) library to handle DB interactions
