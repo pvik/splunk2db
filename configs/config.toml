@@ -1,0 +1,88 @@
+[log]
+format = "text" # text or json
+output = "term" # term or file
+log-directory = "./logs/" # required if output above is 'file'
+level = "debug" # debug, info, warn
+
+[database]
+
+    [database.test-pq]
+    host = "localhost"
+    port = 5432
+    type = "postgres" # postgres, sqlserver, mysql, sqlite
+    username = "postgres"
+    password = "docker"
+    dbname = "test"
+
+    [database.test-mss]
+    host = "localhost"
+    port = 1433
+    type = "mssql"
+    username = "sa"
+    password = "supersecurepassword1!"
+    dbname = "test"
+
+    [database.test-sqlite]
+    type = "sqlite"
+    dbname = "test.db"
+
+[splunk]
+
+    [splunk.datalake1]
+    host = "https://test.splunk.com:8089"
+    auth-type = "authentication-token" # basic, authentication-token, authorization-token
+    authentication-token = "abc123"
+    max-count = 100 # defines the max result limit splunk returns per API call, used for partitioning 
+
+    [splunk.datalake2]
+    host = "https://test.splunk.com:8089"
+    auth-type = "authorization-token"
+    username = "admin"
+    password = "test"
+
+
+[queries]
+[queries.test-query]
+from-splunk-name = "datalake1"
+to-db-name = "test-pq"
+db-table = "snow_incidents"
+db-table-primary-key-column = "ticket_id" # This is optional, if not specified, ever result record from splunk will be inserted as a new record into the DB
+search-query = '''| from datamodel:Snow_Incidents
+| sort 0-_time
+| fields - _raw _time'''
+allow-partition = true
+# specify time in format %m/%d/%Y:%H:%M:%S ex: "01/02/2006:15:04:05"
+#  or you can also use relative times like now, 1 hour ago, 15 minutes ago, etc 
+start-time = "01/01/2023:00:00:00" 
+end-time = "now" 
+include-fields = ["dv_number", "dv_company", "dv_state", "description"]
+    [queries.test-query.splunk-fields-translation]
+        [queries.test-query.splunk-fields-translation.dv_number]
+        db-column-name = "ticket_id"
+        [queries.test-query.splunk-fields-translation.dv_company]
+        db-column-name = "company"
+        [queries.test-query.splunk-fields-translation.dv_state]
+        db-column-name = "state"
+            [queries.test-query.splunk-fields-translation.dv_state.value-translations]
+            "Resolved" = "Resolved Incident"
+
+[queries.another-query]
+from-splunk-name = "datalake1"
+to-db-name = "test-mss"
+db-table = "test"
+db-table-primary-key-column = "ticket_id"
+search-query= ''' | from datamodel:test
+| sort 0-_time 
+| head 10
+'''
+    [queries.another-query.splunk-fields-translation]
+        [queries.another-query.splunk-fields-translation._raw]
+        db-column-name = "raw_json"
+        [queries.another-query.splunk-fields-translation.test_field]
+        db-column-name = "test_col"
+            [queries.another-query.splunk-fields-translation.test_field.value-translations]
+            val1 = "translated1"
+            val2 = "translated2"
+        [queries.another-query.splunk-fields-translation.test_field2]
+        db-column-name = "test2_col"
+

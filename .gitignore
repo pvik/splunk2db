@@ -1,0 +1,6 @@
+*.out
+bin/
+.#*
+.vscode/
+logs/
+deploy/

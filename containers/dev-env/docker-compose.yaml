@@ -1,0 +1,19 @@
+version: '3'
+services:
+  db-splunk2db-test-pg:
+    container_name: splunk2db-pg
+    environment:
+      - POSTGRES_PASSWORD=docker
+    ports:
+      - "5432:5432"
+    image: "postgres:alpine"
+
+  db-splunk2db-test-mss:
+    container_name: splunk2db-mss
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=myStrongPassword12345!
+    ports:
+      - "1433:1433"
+    image: "mcr.microsoft.com/mssql/server:2022-latest"
+    
