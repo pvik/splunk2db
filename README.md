@@ -4,6 +4,8 @@ A backend ETL service to run search queries against Splunk via API and load them
 
 An alternative to using the Splunk DB Connect App to extract data from Splunk and load it into a relational database.
 
+Pre-built binaries are available [here](https://github.com/pvik/splunk2db/releases).
+
 ## Config 
 
 A valid `config.toml` needs to be provided to the `splunk2db` service.
