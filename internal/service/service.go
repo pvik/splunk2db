@@ -8,7 +8,9 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"runtime/debug"
 	"strings"
+	"time"
 
 	c "github.com/pvik/splunk2db/internal/config"
 
@@ -26,6 +28,12 @@ var (
 //   - initialize config file (passed in as command line arg)
 //   - Setup Logging
 func InitService() {
+	_, serviceName := filepath.Split(os.Args[0])
+
+	commit := getCommit()
+
+	log.Info(serviceName+" starting", "version", "0.2", "git shortcommit", commit)
+
 	var confFile string
 	flag.StringVar(&confFile, "conf", "", "config file for microservice")
 	flag.Parse()
@@ -37,8 +45,6 @@ func InitService() {
 	}
 
 	c.InitConfig(confFile)
-
-	_, serviceName := filepath.Split(os.Args[0])
 
 	var logger *log.Logger
 	var logOuput io.Writer
@@ -78,6 +84,12 @@ func InitService() {
 			&log.HandlerOptions{
 				// AddSource: true,
 				Level: logLevel,
+				ReplaceAttr: func(groups []string, a log.Attr) log.Attr {
+					if a.Key == "time" {
+						a.Value = log.StringValue(a.Value.Time().Format(time.DateTime))
+					}
+					return a
+				},
 			}))
 	} else {
 		// Default to TextFormatter
@@ -85,6 +97,12 @@ func InitService() {
 			&log.HandlerOptions{
 				// AddSource: true,
 				Level: logLevel,
+				ReplaceAttr: func(groups []string, a log.Attr) log.Attr {
+					if a.Key == "time" {
+						a.Value = log.StringValue(a.Value.Time().Format(time.DateTime))
+					}
+					return a
+				},
 			}))
 	}
 
@@ -106,4 +124,15 @@ func Shutdown() {
 		//log.SetOutput(os.Stdout)
 		logFileHandle.Close()
 	}
+}
+
+func getCommit() string {
+	if info, ok := debug.ReadBuildInfo(); ok {
+		for _, setting := range info.Settings {
+			if setting.Key == "vcs.revision" {
+				return setting.Value
+			}
+		}
+	}
+	return ""
 }
