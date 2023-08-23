@@ -32,7 +32,7 @@ func InitService() {
 
 	commit := getCommit()
 
-	log.Info(serviceName+" starting", "version", "0.2.1", "git shortcommit", commit)
+	log.Info(serviceName+" starting", "version", "0.2.1", "git commit", commit)
 
 	var confFile string
 	flag.StringVar(&confFile, "conf", "", "config file for microservice")
