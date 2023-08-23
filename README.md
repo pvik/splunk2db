@@ -25,12 +25,13 @@ If the `allow-partition`, `start-time` and `end-time` fields are populated, the 
 
 ## Usage 
 
-```json
+```
 $ ./splunk2db -conf ./config.toml
-{"time":"2023-08-22T15:55:53.237388165-04:00","level":"INFO","msg":"splunk2db service initialized"}
-{"time":"2023-08-22T15:55:53.237401575-04:00","level":"INFO","msg":"running query","name":"test-query","from-splunk":"datalake1","to-db":"test-mss"}
-{"time":"2023-08-22T15:55:53.237406275-04:00","level":"INFO","msg":"connecting to db","db-name":"test-mss"}
-{"time":"2023-08-22T15:55:59.84605865-04:00","level":"INFO","msg":"done processing query","query-name":"test-query","processed-records":15}
+2023/08/23 17:11:55 INFO splunk2db starting version=0.2.1 "git commit"=dd84b9066360e3432ca9437e0da35c3f564fc36f
+time="2023-08-23 17:11:55" level=INFO msg="splunk2db service initialized"
+time="2023-08-23 17:11:55" level=INFO msg="running query" name=test-query from-splunk=datalake1 to-db=test-mss
+time="2023-08-23 17:11:55" level=INFO msg="connecting to db" db-name=test-mss
+time="2023-08-23 17:12:02" level=INFO msg="done processing query" query-name=test-query processed-records=24
 ```
 
 ## Thanks
