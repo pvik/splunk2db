@@ -2,14 +2,12 @@ package main
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/pvik/splunk2db/internal/config"
 	"github.com/pvik/splunk2db/internal/service"
 	"github.com/pvik/splunk2db/pkg/db"
 	"gorm.io/gorm"
 
-	"github.com/markusmobius/go-dateparser"
 	splunk "github.com/pvik/go-splunk-rest"
 
 	log "log/slog"
@@ -88,62 +86,41 @@ func main() {
 		}
 
 		if query.StartTime != "" {
-			if query.StartTime == "now" {
-				searchOptions.UseEarliestTime = true
-				searchOptions.EarliestTime = time.Now()
-			} else {
-				var err error
-				searchOptions.EarliestTime, err = time.Parse(splunk.TIME_FORMAT, query.StartTime)
-				if err != nil {
-					// Check to see if string can be parsed as a relative time
-					dt, err := dateparser.Parse(
-						&dateparser.Configuration{
-							CurrentTime: time.Now(),
-						},
-						query.StartTime,
-					)
-					if err != nil {
-						log.Warn("invalid start time",
-							"query-name", qName,
-							"start-time", query.StartTime,
-						)
-						continue
-					}
-
-					searchOptions.EarliestTime = dt.Time
-				}
-				searchOptions.UseEarliestTime = true
+			timeVal, isValidTime, err := parseTimeString(query.StartTime)
+			if err != nil {
+				log.Warn("invalid start time",
+					"query-name", qName,
+					"start-time", query.StartTime,
+					"error", err,
+				)
+				continue
 			}
-			log.Debug("search limit start", "time", searchOptions.EarliestTime)
+
+			if isValidTime {
+				searchOptions.EarliestTime = timeVal
+				searchOptions.UseEarliestTime = true
+
+				log.Debug("search limit start", "time", searchOptions.EarliestTime)
+			}
 		}
 
 		if query.EndTime != "" {
-			if query.EndTime == "now" {
-				searchOptions.UseLatestTime = true
-				searchOptions.LatestTime = time.Now()
-			} else {
-				var err error
-				searchOptions.LatestTime, err = time.Parse(splunk.TIME_FORMAT, query.EndTime)
-				if err != nil {
-					// Check to see if string can be parsed as a relative time
-					dt, err := dateparser.Parse(
-						&dateparser.Configuration{
-							CurrentTime: time.Now(),
-						},
-						query.EndTime,
-					)
-					if err != nil {
-						log.Warn("invalid end time",
-							"query-name", qName,
-							"end-time", query.EndTime,
-						)
-						continue
-					}
-					searchOptions.LatestTime = dt.Time
-				}
-				searchOptions.UseLatestTime = true
+			timeVal, isValidTime, err := parseTimeString(query.EndTime)
+			if err != nil {
+				log.Warn("invalid start time",
+					"query-name", qName,
+					"end-time", query.EndTime,
+					"error", err,
+				)
+				continue
 			}
-			log.Debug("search limit end", "time", searchOptions.LatestTime)
+
+			if isValidTime {
+				searchOptions.LatestTime = timeVal
+				searchOptions.UseLatestTime = true
+
+				log.Debug("search limit end", "time", searchOptions.EarliestTime)
+			}
 		}
 
 		// Search Splunk with query
